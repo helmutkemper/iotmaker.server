@@ -19,3 +19,11 @@ type metaJSonOut struct {
 	Success    bool     `json:"Success"`
 	Error      []string `json:"Error,omitempty"`
 }
+
+func (el *metaJSonOut) AddError(value string) {
+	if len(el.Error) == 0 {
+		el.Error = make([]string, 0)
+	}
+
+	el.Error = append(el.Error, value)
+}

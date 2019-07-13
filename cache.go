@@ -12,16 +12,16 @@ const KCacheDir string = "./cache"
 
 // pt-br: retorna um novo struct JSonOut para restful
 // en: return a new JSonOut struct for restful
-func NewJSonOut() out {
-	return out{}
+func NewJSonOut() Out {
+	return Out{}
 }
 
-type out struct {
+type Out struct {
 	jSonOut
 	Id string `json:"cacheId"`
 }
 
-func (el *out) String() string {
+func (el *Out) Byte() []byte {
 
 	if el.Id == "" {
 		err := el.SaveCache()
@@ -30,12 +30,16 @@ func (el *out) String() string {
 		}
 	}
 
+	if el.Meta.Success != true {
+		el.Objects = []int{}
+	}
+
 	out, _ := json.Marshal(el)
 
-	return string(out)
+	return out
 }
 
-func (el *out) SaveCache() error {
+func (el *Out) SaveCache() error {
 	var err error
 	// todo: remove this const
 	err = util.DirMake(KCacheDir)
@@ -52,12 +56,12 @@ func (el *out) SaveCache() error {
 	return err
 }
 
-func (el *out) LoadCache(id string) error {
+func (el *Out) LoadCache(id string) error {
 	err := el.load(id)
 	return err
 }
 
-func (el *out) MakeId() string {
+func (el *Out) MakeId() string {
 
 	var id = ""
 	for block := 0; block != 4; block += 1 {
@@ -75,7 +79,7 @@ func (el *out) MakeId() string {
 	return id
 }
 
-func (el out) save(id string) error {
+func (el Out) save(id string) error {
 	buf, err := json.Marshal(el)
 
 	err = ioutil.WriteFile(KCacheDir+"/"+id, buf, 0644)
@@ -83,7 +87,7 @@ func (el out) save(id string) error {
 	return err
 }
 
-func (el *out) load(id string) error {
+func (el *Out) load(id string) error {
 	var file []byte
 	var err error
 
