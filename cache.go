@@ -2,6 +2,7 @@ package iotmaker_server_json
 
 import (
 	"encoding/json"
+	"github.com/docker/docker/api/types"
 	"github.com/helmutkemper/util"
 	"io/ioutil"
 	"math/rand"
@@ -13,7 +14,10 @@ const KCacheDir string = "./cache"
 // pt-br: retorna um novo struct JSonOut para restful
 // en: return a new JSonOut struct for restful
 func NewJSonOut() Out {
-	return Out{}
+	var ret = Out{}
+	ret.Meta.Success = true
+
+	return ret
 }
 
 type Out struct {
@@ -32,6 +36,11 @@ func (el *Out) Byte() []byte {
 
 	if el.Meta.Success != true {
 		el.Objects = []int{}
+	}
+
+	switch converted := el.Objects.(type) {
+	case []types.Container:
+		el.Meta.TotalCount = len(converted)
 	}
 
 	out, _ := json.Marshal(el)

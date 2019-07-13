@@ -15,7 +15,7 @@ type metaJSonOut struct {
 	Next       string   `json:"Next,omitempty"`
 	Offset     int64    `json:"Offset"`
 	Previous   string   `json:"Previous,omitempty"`
-	TotalCount int64    `json:"TotalCount,omitempty"`
+	TotalCount int      `json:"TotalCount,omitempty"`
 	Success    bool     `json:"Success"`
 	Error      []string `json:"Error,omitempty"`
 }
