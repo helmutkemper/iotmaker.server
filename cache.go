@@ -22,12 +22,11 @@ func NewJSonOut() Out {
 
 type Out struct {
 	jSonOut
-	Id string `json:"cacheId"`
 }
 
 func (el *Out) Byte() []byte {
 
-	if el.Id == "" {
+	if el.Meta.Cache == "" {
 		err := el.SaveCache()
 		if err != nil {
 			panic(err)
@@ -56,11 +55,11 @@ func (el *Out) SaveCache() error {
 		return err
 	}
 
-	if el.Id == "" {
-		el.Id = el.MakeId()
+	if el.Meta.Cache == "" {
+		el.Meta.Cache = el.MakeId()
 	}
 
-	err = el.save(el.Id)
+	err = el.save(el.Meta.Cache)
 
 	return err
 }
