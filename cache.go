@@ -5,11 +5,17 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/helmutkemper/util"
 	"io/ioutil"
+	"log"
 	"math/rand"
+	"os"
+	"strconv"
+	"time"
 )
 
 const kListChar string = "abcdefghijklmnopqrstuvwxyz0123456789"
 const KCacheDir string = "./cache"
+
+var machineName string
 
 // pt-br: retorna um novo struct JSonOut para restful
 // en: return a new JSonOut struct for restful
@@ -26,15 +32,15 @@ type Out struct {
 
 func (el *Out) Byte() []byte {
 
-	if el.Meta.Cache == "" {
+	if el.Meta.Success != true {
+		el.Objects = []int{}
+	} else if el.Meta.Cache == "" {
+
 		err := el.SaveCache()
 		if err != nil {
 			panic(err)
 		}
-	}
 
-	if el.Meta.Success != true {
-		el.Objects = []int{}
 	}
 
 	switch converted := el.Objects.(type) {
@@ -69,22 +75,43 @@ func (el *Out) LoadCache(id string) error {
 	return err
 }
 
-func (el *Out) MakeId() string {
+func (el *Out) GetTime() string {
+	var tm = time.Now().UnixNano()
+	return strconv.FormatInt(tm, 16)
+}
 
-	var id = ""
-	for block := 0; block != 4; block += 1 {
-
-		if block != 0 {
-			id += "-"
-		}
-
-		for digit := 0; digit != 4; digit += 1 {
-			var index = rand.Intn(len(kListChar)-0) + 0
-			id += kListChar[index : index+1]
-		}
+func (el *Out) GetMachineName() string {
+	if machineName != "" {
+		return machineName
 	}
 
-	return id
+	machineName = os.Getenv("MACHINE_NAME")
+	if machineName == "" {
+		machineName = el.GetRandString(10)
+		log.Print("iotMaker.server.json.GetMachineName.error: please, set environment var MACHINE_NAME\n")
+	}
+
+	err := os.Setenv("MACHINE_NAME", machineName)
+	if err != nil {
+		log.Printf("iotMaker.server.json.GetMachineName.error: %v\n", err.Error())
+	}
+
+	return machineName
+}
+
+func (el *Out) GetRandString(l int) string {
+	var randString = ""
+
+	for digit := 0; digit != l; digit += 1 {
+		var index = rand.Intn(len(kListChar))
+		randString += kListChar[index : index+1]
+	}
+
+	return randString
+}
+
+func (el *Out) MakeId() string {
+	return el.GetTime() + "-" + el.GetMachineName() + "-" + el.GetRandString(10)
 }
 
 func (el Out) save(id string) error {
